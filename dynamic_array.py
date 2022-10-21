@@ -257,6 +257,47 @@ class DynamicArray:
 
 def find_mode(arr: DynamicArray) -> (DynamicArray, int):
     output_array = DynamicArray()
+    if arr.length() == 1:
+        output_array.append(arr[0])
+        return (output_array, 1)
+    mode = 0
+    new_mode = 0
+    x = 0
+    current = arr[x]
+    while x <= arr.length() - 1:
+        if arr[x] == current:
+            new_mode += 1
+            x += 1
+        else:
+            if new_mode > mode:
+                output_array = DynamicArray()
+                output_array.append(current)
+                mode = new_mode
+                new_mode = 0
+                current = arr[x]
+            elif new_mode == mode:
+                output_array.append(current)
+                new_mode = 0
+                current = arr[x]
+            else:
+                current = arr[x]
+                new_mode = 0
+    #PROBLEM HOW TO CHECK EITHER THE LAST OR FIRST ELEMENT
+    if arr[arr.length()-1] == current:
+        #new_mode += 1                                      #maybe this fixed it? Not having this line
+        if new_mode > mode:
+            output_array = DynamicArray()
+            output_array.append(current)
+            mode = new_mode
+        elif new_mode == mode:
+            output_array.append(current)
+            new_mode = 0
+
+    return (output_array, mode)
+
+
+    '''
+    output_array = DynamicArray()
     mode = 0
     new_mode = 1
     x = 0
@@ -296,7 +337,7 @@ def find_mode(arr: DynamicArray) -> (DynamicArray, int):
         elif new_mode == mode:
             output_array.append(arr[x])
             new_mode = 1
-    return (output_array, mode)
+    return (output_array, mode)'''
 
 
 # ------------------- BASIC TESTING -----------------------------------------
