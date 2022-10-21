@@ -8,9 +8,6 @@
 
 from dynamic_array import *
 
-class StopException(Exception):
-    pass
-
 class Bag:
     def __init__(self, start_bag=None):
         """
@@ -83,7 +80,7 @@ class Bag:
         try:
             value = self._da[self._index]
         except DynamicArrayException:
-            raise StopException
+            raise StopIteration
 
         self._index = self._index + 1
         return value
