@@ -42,9 +42,12 @@ class Bag:
     # -----------------------------------------------------------------------
 
     def add(self, value: object) -> None:
+        '''method that calls the DynamicArray method append to add the given value to the bag'''
         self._da.append(value)
 
     def remove(self, value: object) -> bool:
+        '''method looks for the first of the given value in the bag and returns a bool based on whether or not the
+        given value was removed from the bag or not'''
         for x in range(self._da.length()):
             if self._da[x] == value:
                 self._da.remove_at_index(x)
@@ -53,6 +56,7 @@ class Bag:
 
 
     def count(self, value: object) -> int:
+        '''method that returns the number of given value in the bag '''
         numbers = 0
         for x in range(self._da.length()):
             if self._da[x] == value:
@@ -60,23 +64,30 @@ class Bag:
         return numbers
 
     def clear(self) -> None:
+        '''method that 'empties' out the bag, by creating a new DA and assigning self._da to it'''
         new_array = DynamicArray()
         self._da = new_array
 
     def equal(self, second_bag: "Bag") -> bool:
+        '''method that checks whether self is equal to given second_bag and returns a boolean'''
         for x in range(self._da.length()):
+            #uses the count method to check if the count of everything in self is equal to the count of everything in
+            #the second bag
             if self.count(self._da[x]) != second_bag.count(self._da[x]):
                 return False
         for x in range(second_bag._da.length()):
+            #just in case there are things in second bag that there aren't in the first bag
             if second_bag.count(second_bag._da[x]) != self.count(second_bag._da[x]):
                 return False
         return True
 
     def __iter__(self):
+        '''__iter__ method that sets an index = 0'''
         self._index = 0
         return self
 
     def __next__(self):
+        '''__next__ method that will raise StopIteration once we get a DynamicArrayException'''
         try:
             value = self._da[self._index]
         except DynamicArrayException:

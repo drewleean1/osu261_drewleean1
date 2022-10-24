@@ -1,9 +1,11 @@
-# Name:
-# OSU Email:
+# Name: Andrew Lee
+# OSU Email: leea6@oregonstate.edu
 # Course: CS261 - Data Structures
-# Assignment:
-# Due Date:
-# Description:
+# Assignment: Assignment 2
+# Due Date: 10/24/2022
+# Description: An implementation of a DynamicArray data structure using a StaticArray as it's underlying framework.
+#Student implemented methods: resize, append, insert_at_index, remove_at_index, slice, merge, map, filter, reduce,
+#and the outside of class function find_mode
 
 
 from static_array import StaticArray
@@ -129,71 +131,60 @@ class DynamicArray:
         """
         print(f"Length: {self._size}, Capacity: {self._capacity}, {self._data}")
 
-    def get_size(self):
-        return self._size
-
     # -----------------------------------------------------------------------
 
     def resize(self, new_capacity: int) -> None:
         '''method that will create a new StaticArray with capacity equal to the given new_capacity, copy data
-        from the current StaticArray over, and then assign self._data to the new array'''
-        if new_capacity <= 0 or new_capacity < self._size:          #check new_capacity is positive and > self._size
+        from the current StaticArray over, and then assign self._data to the new array.'''
+        if new_capacity <= 0 or new_capacity < self._size:
             return
-        new_array = StaticArray(new_capacity)                       #create new StaticArray
-        lesser_of_two = None                                        #assign to new var whichever is smaller, new_capacity
-        if new_capacity < self._data.length():                      #or self._data.length() to avoid an IndexBoundError
+        new_array = StaticArray(new_capacity)
+        lesser_of_two = None                                      #assign to new var whichever is smaller, new_capacity
+        if new_capacity < self.length():                          #or self._data.length() to avoid an IndexBoundError
             lesser_of_two = new_capacity
         else:
-            lesser_of_two = self._data.length()
-        for x in range(lesser_of_two):                              #copy values from old to new array
+            lesser_of_two = self.length()
+        for x in range(lesser_of_two):                              #for loop to copy values from old to new array
             new_array[x] = self._data[x]
-        self._data = new_array                                      #assign self._data to our new_array
-        self._capacity = new_capacity                               #set self._capacity to our new_capacity
+        self._data = new_array
+        self._capacity = new_capacity
 
     def append(self, value: object) -> None:
-        '''method that appends the given value to the end of our array and doubles the array if there is not enough
-        capacity'''
-        if self.get_capacity() == self.get_size():                  #if capacity == size, then we have to resize
+        '''method that appends the given value to the end of our array and doubles the array by calling resize if there
+        is not enough capacity'''
+        if self.get_capacity() == self.length():
             self.resize(self.get_capacity() * 2)
-        self._data[self.get_size()] = value
+        self._data[self.length()] = value
         self._size += 1
-        '''continuation = True
-        x = 0
-        while continuation:                                         #while loop to go through data until we reach our
-            if self._data[x] == None:                               #first None value, then set value to that index
-                self._data[x] = value
-                continuation = False
-                self._size += 1                                     #increase size by 1
-            x += 1'''
 
     def insert_at_index(self, index: int, value: object) -> None:
         '''method that inserts given value at the given index, moving all elements down one spot. Method will also double
-        size of the array if necessary'''
-        if index < 0 or index > self.get_size():                    #raise exception if given index is invalid
+        size of the array if necessary by calling resize and will raise an exception if the given index is invalid'''
+        if index < 0 or index > self.length():
             raise DynamicArrayException
-        if self.get_capacity() == self.get_size():                  #if capacity == size, then we have to resize
+        if self.get_capacity() == self.length():
             self.resize(self.get_capacity() * 2)
-        end_of_array = self.get_size() - 1                          #two pointers to the index
-        new_end_of_array = self.get_size()
-        while end_of_array >= index:                                #while loop continues until end of array, moves
-                                                                    #values down one spot
+        end_of_array = self.length() - 1                            #two pointers to the end of array and its new index
+        new_end_of_array = self.length()
+        while end_of_array >= index:                                #while loop continues til reach given index, copies
+                                                                    #values up one spot
             self._data[new_end_of_array] = self._data[end_of_array]
             end_of_array -= 1
             new_end_of_array -= 1
-        self._data[index] = value                                   #put value in given index
+        self._data[index] = value
         self._size += 1
 
 
     def remove_at_index(self, index: int) -> None:
         '''method that removes the value at given index and moves all the values down 1 spot'''
-        if self.length() < self.get_capacity()*.25:                     #check for whether we need to shrink array
+        if self.length() < self.get_capacity()*.25:
             if self.get_capacity() > 10 or self.length()*2 > 10:
                 larger = None
-                if self.length()*2 > 10:                                #when shrinking, cannot shrink below 10
+                if self.length()*2 > 10:                              #when shrinking, cannot shrink array below 10
                     larger = self.length()*2
                 else: larger = 10
                 self.resize(larger)
-        if index < 0 or index > (self.get_size() - 1):                  #check for invalid index
+        if index < 0 or index > (self.length() - 1):
             raise DynamicArrayException
         start = index
         end = index + 1
@@ -206,35 +197,34 @@ class DynamicArray:
     def slice(self, start_index: int, size: int) -> "DynamicArray":
         '''method that returns a new DynamicArray that is all values in a given range'''
         if start_index < 0 or start_index >= self.length() or start_index+size > self.length() or size < 0:
-            #raise an exception if start_index or size is invalid or if there are not enough elements to create slice
             raise DynamicArrayException
         new_array = DynamicArray()
         for x in range (size):                          #for loop to append given slice to new_array
             new_array.append(self._data[start_index])
             start_index += 1
-        return new_array                                #return new_array
+        return new_array
 
 
     def merge(self, second_da: "DynamicArray") -> None:
         '''method takes as input a DynamicArray and append all its elements to self'''
-        for x in range(second_da.length()):                 #for loop to iterate through second_da
-            self.append(second_da[x])                       #use append method to add each element to self
+        for x in range(second_da.length()):
+            self.append(second_da[x])
 
     def map(self, map_func) -> "DynamicArray":
         '''method takes a map_function and returns a new DynamicArray where every self's elements have the map function
         applied to it'''
         new_array = DynamicArray()
-        for x in range(self.length()):                      #for loop to iterate through self.
-            new_array.append(map_func(self._data[x]))       #append to new_array the new values
+        for x in range(self.length()):
+            new_array.append(map_func(self._data[x]))
         return new_array
 
     def filter(self, filter_func) -> "DynamicArray":
         '''method takes a filter function and returns a new DynamicArray with all of self's elements that pass the filter
         function'''
         new_array = DynamicArray()
-        for x in range(self.length()):                      #for loop to iterate through self
+        for x in range(self.length()):
             if filter_func(self._data[x]):                  #if statement to check if filter applies
-                new_array.append(self._data[x])             #if so, append value to new_array
+                new_array.append(self._data[x])
         return new_array
 
     def reduce(self, reduce_func, initializer=None) -> object:
@@ -244,100 +234,57 @@ class DynamicArray:
         if initializer == None:                             #if no initializer, the stored_value will be index[0] and
                                                             #we will start iterating through DA from index[1]
             stored_value = self._data[0]
-            second = 1
+            index = 1
         else:                                               #if there is an initializer, then we will begin iterating
                                                             #from DA[0]
             stored_value = initializer
-            second = 0
-        while second != self.length():                      #while loop to go through DA
-            stored_value = reduce_func(stored_value, self._data[second])
-            second += 1
+            index = 0
+        while index != self.length():
+            stored_value = reduce_func(stored_value, self._data[index])
+            index += 1
         return stored_value
 
-
 def find_mode(arr: DynamicArray) -> (DynamicArray, int):
+    '''function that takes a DynamicArray and returns a tuple of 1) a DynamicArray with all the modes, and 2) what
+    the mode is aka the frequency'''
     output_array = DynamicArray()
     if arr.length() == 1:
         output_array.append(arr[0])
         return (output_array, 1)
     mode = 0
-    new_mode = 0
-    x = 0
-    current = arr[x]
-    while x <= arr.length() - 1:
-        if arr[x] == current:
-            new_mode += 1
-            x += 1
-        else:
-            if new_mode > mode:
+    new_mode = 0                                #var to keep track of the new mode when we are counting each new element
+    index = 0
+    current = arr[index]                        #var to keep track of what element we are currently counting
+    while index <= arr.length() - 1:
+        if arr[index] == current:               #if the element at index == current, then we +1 new_mode and continue
+            new_mode += 1                       #iterating
+            index += 1
+        else:                                   #if it's not, then we know bc its sorted, then we check if it's the mode
+            if new_mode > mode:                 #we have a higher mode, so we have to create a new output_array
                 output_array = DynamicArray()
                 output_array.append(current)
                 mode = new_mode
                 new_mode = 0
-                current = arr[x]
-            elif new_mode == mode:
+                current = arr[index]
+            elif new_mode == mode:              #this case, we just append current to output_array
                 output_array.append(current)
                 new_mode = 0
-                current = arr[x]
-            else:
-                current = arr[x]
+                current = arr[index]
+            else:                               #if it's not a mode, then we continue iterating
+                current = arr[index]
                 new_mode = 0
-    #PROBLEM HOW TO CHECK EITHER THE LAST OR FIRST ELEMENT
-    if arr[arr.length()-1] == current:
-        #new_mode += 1                                      #maybe this fixed it? Not having this line
-        if new_mode > mode:
+    if arr[arr.length()-1] == current:          #with the way above code is worded, we have to check the last element
+        if new_mode > mode:                     #in the array and see if it is a mode
             output_array = DynamicArray()
             output_array.append(current)
             mode = new_mode
         elif new_mode == mode:
             output_array.append(current)
             new_mode = 0
-
     return (output_array, mode)
 
 
-    '''
-    output_array = DynamicArray()
-    mode = 0
-    new_mode = 1
-    x = 0
-    y = 1
-    if arr.length() == 1:
-        output_array.append(arr[0])
-        return (output_array, 1)
-    while y <= arr.length() - 1:
-        if arr[x] != arr[y]:
-            if new_mode > mode:
-                output_array = DynamicArray()
-                output_array.append(arr[x])
-                mode = new_mode
-                new_mode = 1
-            elif new_mode == mode:
-                output_array.append(arr[x])
-                new_mode = 1
-        else:
-            new_mode += 1
-        x += 1
-        y += 1
-    if arr[y-1] != arr[x-1]:                            #check the last element
-        if new_mode > mode:
-            output_array = DynamicArray()
-            output_array.append(arr[x])
-            mode = new_mode
-            new_mode = 1
-        elif new_mode == mode:
-            output_array.append(arr[x])
-            new_mode = 1
-    else:
-        if new_mode > mode:
-            output_array = DynamicArray()
-            output_array.append(arr[x])
-            mode = new_mode
-            new_mode = 1
-        elif new_mode == mode:
-            output_array.append(arr[x])
-            new_mode = 1
-    return (output_array, mode)'''
+
 
 
 # ------------------- BASIC TESTING -----------------------------------------
